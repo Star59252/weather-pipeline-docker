@@ -14,5 +14,10 @@ chmod 0644 /etc/cron.d/weather_etl_cron
 # apply cron job
 crontab /etc/cron.d/weather_etl_cron
 
+# --- NEW: Run the script immediately on startup ---
+echo "Running immediate data fetch..."
+/app/run_etl.sh
+# --------------------------------------------------
+
 # run cron in foreground
 cron && tail -F /var/log/etl.log
