@@ -47,6 +47,22 @@ This pipeline is designed to be self-healing and fully automated:
   * **Auto-Provisioned Grafana:** The MySQL connection is **pre-configured** via `config/datasource.yml`. You do not need to manually add the data source in the GUI.
   * **Resilient Scheduling:** After the initial run, a Cron job schedules the script to run at the top of every hour to track long-term trends.
 
+-----
+
+## 📸 Demo & Screenshots
+
+### 1. Automated Data Collection
+*Log output showing successful data insertion immediately after startup.*
+
+![ETL Logs](logs.png)
+
+### 2. Live Visualization
+*Real-time weather tracking dashboard showing temperature trends in Phagwara.*
+
+![Grafana Dashboard](demo_snap.png)
+
+---
+
 ## 📂 Project Structure
 
 ```text
@@ -85,4 +101,5 @@ The `weather_data` table stores the following metrics for **Phagwara**:
   * `wind_speed` (m/s)
   * `description` (Text)
   * `dt` (Timestamp)
+
 
