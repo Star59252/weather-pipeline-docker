@@ -1,46 +1,51 @@
-# Dockerized Weather ETL Pipeline
-📖 Project Overview
-This project is an automated ETL (Extract, Transform, Load) pipeline that monitors real-time weather conditions. It is fully containerized using Docker, ensuring it runs consistently in any environment.
-
-Extract: A Python script fetches live weather data for Phagwara from the OpenWeatherMap API every hour.
-
-Transform: The data is processed to extract key metrics (Temperature, Humidity, Wind Speed).
-
-Load: Cleaned data is stored in a MySQL database.
-
-Visualize: A Grafana dashboard connects to the database to visualize weather trends over time.
+# 🌤️ Dockerized Weather ETL Pipeline (Fully Automated)
 
 > **⚠️ Assessment Note:**
-> For the purpose of this assessment review, the `.env` configuration file (containing API keys and Database credentials) has been **included** in this repository. 
-> You can simply clone this repo and run it immediately without extra configuration.
+> For the purpose of this assessment review, the `.env` configuration file (containing API keys and Database credentials) is **included** in this repository. 
+> The project is configured for **"Zero-Touch" deployment**: Data fetching starts immediately, and Grafana connects to the database automatically.
 
-## ⚡ Quick Start (For Reviewers)
+## ⚡ Quick Start (One Command)
 
-To see the pipeline in action on your machine, follow these two steps:
+You can run this project locally or in the cloud. No manual configuration is required.
 
-### 1. Run the Application
+### Option A: Run Locally (Requires Docker)
 ```bash
-# Clone the repository
+# 1. Clone the repository
 git clone [https://github.com/Star59252/weather-pipeline-docker.git](https://github.com/Star59252/weather-pipeline-docker.git)
 cd weather-pipeline-docker
 
-# Start the application (using the included .env config)
-docker-compose up --build
+# 2. Start the application
+docker-compose up --build -d
+````
 
-## 🚀 Features
+### Option B: Run in Browser (No Installation)
 
-* **Automated Data Collection:** A Python script runs continuously on a Cron schedule (every hour) to fetch live weather data.
-* **Data Persistence:** Stores City, Temperature, Humidity, Pressure, Wind Speed, and Weather Description in a MySQL database.
-* **Visualization:** Integrated Grafana dashboard for real-time monitoring.
-* **Containerized:** Fully Dockerized environment using Docker Compose for easy deployment.
+1.  Click the green **Code** button \> **Codespaces** \> **Create codespace on main**.
+2.  Wait for the terminal to load.
+3.  If it doesn't start automatically, run: `docker-compose up --build -d`
 
-## 🛠️ Tech Stack
+-----
 
-* [cite_start]**Language:** Python 3.11 [cite: 4]
-* **Database:** MySQL 8.0
-* **Visualization:** Grafana
-* **Orchestration:** Docker & Docker Compose
-* **API:** OpenWeatherMap
+## 🖥️ Accessing the Dashboard
+
+Once the containers are running, the services are available immediately:
+
+| Service | URL | Username | Password | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **Grafana** | [http://localhost:3000](https://www.google.com/search?q=http://localhost:3000) | `bashansnehith123` | `Sneh!th59252` | **Auto-Connected** ✅ |
+| **MySQL** | `localhost:3307` | `root` | `59252` | **Active** ✅ |
+
+  * **Check Logs:** `docker logs -f weather_etl`
+
+-----
+
+## 🚀 Key Features (Automation)
+
+This pipeline is designed to be self-healing and fully automated:
+
+  * **Instant Data Fetch:** The Python script runs **immediately** upon container startup (via `entrypoint.sh`). You do not need to wait for the hourly Cron job to trigger the first data point.
+  * **Auto-Provisioned Grafana:** The MySQL connection is **pre-configured** via `config/datasource.yml`. You do not need to manually add the data source in the GUI.
+  * **Resilient Scheduling:** After the initial run, a Cron job schedules the script to run at the top of every hour to track long-term trends.
 
 ## 📂 Project Structure
 
@@ -48,33 +53,36 @@ docker-compose up --build
 .
 ├── etl/
 │   ├── Dockerfile          # Python environment setup
-│   ├── weather_etl.py      # Main script to fetch & store data
-│   ├── run_etl.sh          # Execution wrapper
-│   ├── entrypoint.sh       # Cron job scheduler
-│   └── test_weather.py     # Unit tests for CI pipeline
+│   ├── weather_etl.py      # Core logic: Fetch API -> Transform -> Load DB
+│   ├── run_etl.sh          # Wrapper script for execution
+│   ├── entrypoint.sh       # Logic for Cron + Immediate Run
+│   └── test_weather.py     # Unit tests
+├── config/
+│   └── datasource.yml      # Grafana auto-provisioning config
 ├── mysql/
 │   └── init.sql            # Database schema initialization
-├── .github/
-│   └── workflows/          # CI/CD Pipeline configuration
-├── docker-compose.yml      # Orchestration of all services
-├── .env                    # Credentials (Included for assessment)
+├── .devcontainer/          # GitHub Codespaces configuration
+├── docker-compose.yml      # Service orchestration
+├── .env                    # Credentials (Included for review)
 └── README.md
+```
 
-📝 Database Schema
-The system automatically initializes a table named weather_data with the following columns:
+## 🛠️ Tech Stack
 
-id: Primary Key
+  * **ETL Script:** Python 3.11 (Requests, MySQL Connector)
+  * **Database:** MySQL 8.0
+  * **Visualization:** Grafana (Provisioned via file)
+  * **Orchestration:** Docker Compose
+  * **CI/CD:** GitHub Actions & Codespaces
 
-city: Target city (Phagwara)
+## 📝 Database Schema
 
-temperature: Temperature in Celsius
+The `weather_data` table stores the following metrics for **Phagwara**:
 
-humidity: Humidity percentage
+  * `temperature` (°C)
+  * `humidity` (%)
+  * `pressure` (hPa)
+  * `wind_speed` (m/s)
+  * `description` (Text)
+  * `dt` (Timestamp)
 
-pressure: Atmospheric pressure
-
-wind_speed: Wind speed
-
-description: Weather condition description
-
-dt: Timestamp of record
