@@ -1,0 +1,18 @@
+Folder PATH listing
+Volume serial number is 42E5-1D75
+C:.
+¦   .env
+¦   docker-compose.yml
+¦   file_tree.txt
+¦   
++---etl
+¦       Dockerfile
+¦       entrypoint.sh
+¦       requirements.txt
+¦       run_etl.sh
+¦       weather_etl.py
+¦       
++---grafana
++---mysql
+        init.sql
+        

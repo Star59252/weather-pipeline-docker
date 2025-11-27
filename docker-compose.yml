@@ -1,0 +1,46 @@
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: weather_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASS}
+      MYSQL_DATABASE: weather_db
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      # Changed to 3307 to avoid conflict with your local MySQL
+      - "3307:3306"
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: weather_grafana
+    depends_on:
+      - mysql
+    restart: always
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASS}
+    volumes:
+      - grafana_data:/var/lib/grafana
+    ports:
+      - "3000:3000"
+
+  etl:
+    build:
+      context: ./etl
+    container_name: weather_etl
+    restart: always
+    depends_on:
+      - mysql
+    env_file:
+      - ./.env
+    volumes:
+      - ./etl:/app
+
+volumes:
+  mysql_data:
+  grafana_data:
