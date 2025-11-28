@@ -12,7 +12,46 @@ services:
       - mysql_data:/var/lib/mysql
       - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     ports:
-      - "3307:3306"
+      - "3307:3306" # Using 3307 to avoid host port conflict
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  grafana:
+    # ... (Keep this section as it was) ...
+
+  etl:
+    build:
+      context: ./etl
+    container_name: weather_etl
+    restart: always
+    depends_on:
+      mysql:
+        condition: service_healthy # <--- This is the crucial line added
+    env_file:
+      - ./.env
+    volumes:
+      - ./etl:/app
+
+
+  grafana:
+    # ... (Keep this section as it was) ...
+
+  etl:
+    build:
+      context: ./etl
+    container_name: weather_etl
+    restart: always
+    depends_on:
+      mysql:
+        condition: service_healthy # <--- This is the crucial line added
+    env_file:
+      - ./.env
+    volumes:
+      - ./etl:/app
+
 
   grafana:
     image: grafana/grafana:latest
