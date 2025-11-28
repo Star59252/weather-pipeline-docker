@@ -12,42 +12,45 @@ services:
       - mysql_data:/var/lib/mysql
       - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     ports:
-      - "3307:3306" # Using 3307 to avoid host port conflict
-    healthcheck:
+      - "3307:3306" # Ensures no conflict with local MySQL (port 3307 on your host)
+    healthcheck: # <--- CRUCIAL: Check if DB is ready before starting dependents
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-
   grafana:
     image: grafana/grafana:latest
     container_name: weather_grafana
     depends_on:
-      - mysql
+      mysql: # <--- WAITS for DB to be healthy
+        condition: service_healthy
     restart: always
     environment:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_USER}
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASS}
     volumes:
       - grafana_data:/var/lib/grafana
-      # This line loads the auto-connection config
-      - ./config/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml
+      # optionally add ./grafana/provisioning:/etc/grafana/provisioning
     ports:
       - "3000:3000"
 
-    etl:
+  etl:
     build:
       context: ./etl
     container_name: weather_etl
     restart: always
     depends_on:
-      mysql:
-        condition: service_healthy # <--- This is the crucial line added
+      mysql: # <--- WAITS for DB to be healthy
+        condition: service_healthy
     env_file:
       - ./.env
     volumes:
       - ./etl:/app
+    # container will run cron inside and execute ETL hourly
+    # expose logs on stdout
+    # The image is built to use cron, so no command is strictly needed here
+    # command: ["/bin/bash", "/app/entrypoint.sh"]
 
 volumes:
   mysql_data:
