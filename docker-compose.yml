@@ -19,39 +19,6 @@ services:
       timeout: 5s
       retries: 5
 
-  grafana:
-    # ... (Keep this section as it was) ...
-
-  etl:
-    build:
-      context: ./etl
-    container_name: weather_etl
-    restart: always
-    depends_on:
-      mysql:
-        condition: service_healthy # <--- This is the crucial line added
-    env_file:
-      - ./.env
-    volumes:
-      - ./etl:/app
-
-
-  grafana:
-    # ... (Keep this section as it was) ...
-
-  etl:
-    build:
-      context: ./etl
-    container_name: weather_etl
-    restart: always
-    depends_on:
-      mysql:
-        condition: service_healthy # <--- This is the crucial line added
-    env_file:
-      - ./.env
-    volumes:
-      - ./etl:/app
-
 
   grafana:
     image: grafana/grafana:latest
@@ -69,13 +36,14 @@ services:
     ports:
       - "3000:3000"
 
-  etl:
+    etl:
     build:
       context: ./etl
     container_name: weather_etl
     restart: always
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy # <--- This is the crucial line added
     env_file:
       - ./.env
     volumes:
